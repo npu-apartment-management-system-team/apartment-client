@@ -1,7 +1,7 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 
-import {showNotify} from 'vant'
+import { showNotify } from 'vant'
 import 'vant/es/notify/style'
 import router from '@/router'
 

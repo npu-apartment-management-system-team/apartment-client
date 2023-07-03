@@ -1,32 +1,38 @@
 <script setup>
-    import { onBeforeUnmount, onMounted, ref } from 'vue'
-    import { validatorCode, validatorPassword, validatorPhone, validatorRegisterCode } from '@/utils/validatorUtil'
+    import { onMounted, ref } from 'vue'
     import { closeToast, showLoadingToast, showNotify } from 'vant'
-    import { putFile } from '@/utils/ossUtil'
-    import axios from '../../api'
+    // import axios from '@/api'
     import { useRouter } from 'vue-router'
-    import { base64ToFile, scanIdCard } from '@/utils/ocrUtil'
-    import { encrypt } from '@/utils/jsencrypt'
-    import { useRegisterDtoStore } from '@/store/auth'
-    import { storeToRefs } from 'pinia'
+    import { validatorCode, validatorPhone, validatorRegisterCode } from "@/utils/validatorUtil";
+    import { useUserStore } from "@/store";
+    import { storeToRefs } from "pinia";
+    import { base64ToFile, scanIdCard } from "@/utils/ocrUtil";
+    import { putFile } from "@/utils/ossUtil";
+    import axios from "@/api";
+    import { handleGetPersonalInfo } from "@/api/common";
+    // import { base64ToFile, scanDrivingLicense, scanIdCard, scanVehicleLicense } from '@/utils/ocrUtil'
+    // import { useUserStore } from '@/store'
+    // import { deleteFile, putFile } from '@/utils/ossUtil'
+    // import { handleGetPersonalInfo } from "@/api/common";
     
     const router = useRouter()
     
-    const registerStore = useRegisterDtoStore()
-    const {registerCache} = storeToRefs(registerStore)
+    const userStore = useUserStore()
+    const {currentUser} = storeToRefs(userStore)
     
-    const registerDto = ref({
+    const reviseUserDto = ref({
         username: '',
-        password: '',
-        departmentId: '',
-        name: '',
-        personalId: '',
-        personalCardUrl: '',
-        faceUrl: '',
-        email: '',
-        sex: 0, // 男0女1
-        isCadre: 0 // 干部1非干部0
+        departmentId: currentUser.value.departmentId,
+        name: currentUser.value.name,
+        personalId: currentUser.value.personalId,
+        personalCardUrl: currentUser.value.personalCardUrl,
+        faceUrl: currentUser.value.faceUrl,
+        email: currentUser.value.email,
+        sex: currentUser.value.sex,
+        isCadre: currentUser.value.isCadre
     })
+    
+    let oldFaceUrl = ''
     
     const sendSmsEnabled = ref(true)
     
@@ -38,7 +44,7 @@
     const smsLoadingText = ref('')
     
     const sendSms = async () => {
-        if (!validatorPhone(registerDto.value.username)) {
+        if (!validatorPhone(reviseUserDto.value.username)) {
             showNotify({type: 'danger', message: '手机号格式不正确'});
             return
         }
@@ -48,7 +54,7 @@
             message: '请求验证码发送中'
         })
         const sendSmsDto = {
-            'phone': registerDto.value.username
+            'phone': reviseUserDto.value.username
         }
         try {
             const {data} = await axios.post('/api/auth/sendsms', sendSmsDto)
@@ -79,7 +85,7 @@
     const checkSmsDisabled = ref(false)
     
     const confirmSms = async () => {
-        confirmSmsDto.value.phone = registerDto.value.username
+        confirmSmsDto.value.phone = reviseUserDto.value.username
         if (!validatorCode(confirmSmsDto.value.code) ||
             !validatorPhone(confirmSmsDto.value.phone)
         ) {
@@ -121,7 +127,7 @@
     const mailLoadingText = ref('')
     
     const sendMail = async () => {
-        if (!/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(registerDto.value.email)) {
+        if (!/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(reviseUserDto.value.email)) {
             showNotify({type: 'danger', message: '邮箱格式不正确'});
             return
         }
@@ -131,7 +137,7 @@
             message: '请求验证码发送中'
         })
         const sendMailDto = {
-            'email': registerDto.value.email
+            'email': reviseUserDto.value.email
         }
         try {
             const {data} = await axios.post('/api/auth/sendmail', sendMailDto)
@@ -160,7 +166,7 @@
     }
     
     const confirmMail = async () => {
-        confirmMailDto.value.email = registerDto.value.email
+        confirmMailDto.value.email = reviseUserDto.value.email
         if (!validatorCode(confirmMailDto.value.code) ||
             /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(confirmMailDto.value.code)) {
             showNotify({type: 'danger', message: '格式不正确'});
@@ -187,8 +193,6 @@
         }
     }
     
-    let checkIdFront = false
-    
     const picPreCheck = (file) => {
         // 大于10M则禁止识别
         if (file.content.size > 10 * 1024 * 1024) {
@@ -202,34 +206,6 @@
     }
     
     let sex = ref('')
-    
-    const uploadAvatar = async (file) => {
-        showLoadingToast({
-            duration: 0,
-            forbidClick: true,
-            message: '人脸照片上传中'
-        })
-        try {
-            const personalPic = base64ToFile(file.content, file.file.name)
-            // 如果不是jpg则直接退出
-            if (!personalPic.name.endsWith('jpg')) {
-                showNotify({ type: 'danger', message: '人脸照片格式不正确' })
-                return false
-            }
-            const result = await putFile(
-                'apartment/user/face/',
-                registerDto.value.name + '_' + personalPic.name, personalPic)
-            if (result.url !== undefined){
-                registerDto.value.faceUrl = result.url
-            }
-            return true
-        } catch (e) {
-            showNotify({ type: 'danger', message: `人脸照片上传失败,请重试` })
-        } finally {
-            closeToast()
-        }
-        return false
-    }
     
     const resolveIdCardFront = async (file) => {
         if (!picPreCheck(file)) {
@@ -253,11 +229,10 @@
                         showNotify({type: 'danger', message: '识别到翻拍或复制。请识别原件身份证'});
                         return
                     }
-                    registerDto.value.name = face.data.name
-                    registerDto.value.personalId = face.data.idNumber
-                    registerDto.value.sex = face.data.sex === '男' ? 0 : 1
+                    reviseUserDto.value.name = face.data.name
+                    reviseUserDto.value.personalId = face.data.idNumber
+                    reviseUserDto.value.sex = face.data.sex === '男' ? 0 : 1
                     sex.value = face.data.sex
-                    checkIdFront = true
                     // 上传身份证照片到OSS
                     closeToast()
                     showLoadingToast({
@@ -269,10 +244,10 @@
                     const result = await putFile(
                         'apartment/user/idcard/',
                         // 拼接文件后缀
-                        registerDto.value.name + '_' + personalIdCard.name,
+                        reviseUserDto.value.name + '_' + personalIdCard.name,
                         personalIdCard
                     )
-                    registerDto.value.personalCardUrl = result.url
+                    reviseUserDto.value.personalCardUrl = result.url
                 } else {
                     showNotify({type: 'danger', message: '身份证识别失败,请重试'});
                 }
@@ -292,75 +267,12 @@
     
     const departmentNameList = []
     
-    // 这下终于得注册了
-    const onSubmit = async () => {
-        // 开始转圈
-        showLoadingToast({
-            duration: 0,
-            forbidClick: true,
-            message: '正在进行人证核验'
-        })
-        try {
-            if (fileList.value.length === 0) {
-                showNotify({type: 'danger', message: '请上传照片以供入住人脸识别'});
-                return
-            }
-            
-            const result = await uploadAvatar(fileList.value[0])
-            if (!result) {
-                return
-            }
-            
-            // 数据预校验
-            if (!checkIdFront) {
-                showNotify({type: 'danger', message: '请先上传身份证正面照片'});
-                return
-            }
-            
-            // 调用人证核身接口进行预校验
-            const faceRecognitionDto = {
-                faceUrl: registerDto.value.faceUrl,
-                name: registerDto.value.name,
-                personalId: registerDto.value.personalId
-            }
-            const resp = await axios.post('/api/auth/faceVerification', faceRecognitionDto)
-            if (resp.data.code === 2000) {
-                closeToast()
-                showLoadingToast({
-                    duration: 0,
-                    forbidClick: true,
-                    message: '人证核验成功,正在进行上传注册信息'
-                })
-            } else {
-                closeToast()
-                showNotify({
-                    type: 'danger',
-                    message: `人证核验失败,${resp.data.msg},请重试`
-                })
-                return
-            }
-            
-            if (role.value.indexOf('isCadre') !== -1) {
-                registerDto.value.isCadre = 1
-            }
-            registerDto.value.password = encrypt(registerDto.value.password)
-            registerDto.value.departmentId =
-                departmentSimpleList.value.find(
-                    item => item.name === registerDto.value.departmentId
-                ).id
-            const {data} = await axios.post('/api/auth/register/user', registerDto.value)
-            if (data.code === 2000) {
-                showNotify({type: 'success', message: '注册成功,请您登录'})
-                // 跳转到登录页面
-                await router.push('/login')
-            } else {
-                showNotify({type: 'danger', message: data.message})
-            }
-        } catch (e) {
-            showNotify({type: 'danger', message: `服务器异常${e},请通知管理员`});
-        } finally {
-            closeToast();
-        }
+    const showPicker = ref(false)
+    
+    const onConfirm = ({selectedValues}) => {
+        reviseUserDto.value.departmentId =
+            departmentNameList.find(item => item.value === selectedValues[0]).text
+        showPicker.value = false
     }
     
     const getDepartmentSimpleList = async () => {
@@ -389,46 +301,153 @@
         }
     }
     
-    onMounted(async () => {
-        await getDepartmentSimpleList()
-        if (registerCache.value.registerDto.username !== '') {
-            // 加载
-            registerDto.value = registerCache.value.registerDto
-            checkSmsDisabled.value = registerCache.value.checkSmsDisabled
-            checkMailDisabled.value = registerCache.value.checkMailDisabled
-            checkIdFront = registerCache.value.checkIdFront
-            sex.value = registerDto.value.sex === 0 ? '男' : '女'
-        }
-    })
-    
-    onBeforeUnmount(() => {
-        registerStore.$patch((state) => {
-            state.registerCache.registerDto = registerDto.value
-            state.registerCache.checkSmsDisabled = checkSmsDisabled.value
-            state.registerCache.checkMailDisabled = checkMailDisabled.value
-            state.registerCache.checkIdFront = checkIdFront
+    const uploadAvatar = async (file) => {
+        showLoadingToast({
+            duration: 0,
+            forbidClick: true,
+            message: '人脸照片上传中'
         })
-    })
-    
-    const showPicker = ref(false)
-    
-    const onConfirm = ({ selectedValues }) => {
-        registerDto.value.departmentId =
-            departmentNameList.find(item => item.value === selectedValues[0]).text
-        showPicker.value = false
+        try {
+            const personalPic = base64ToFile(file.content, file.file.name)
+            // 如果不是jpg则直接退出
+            if (!personalPic.name.endsWith('jpg')) {
+                showNotify({type: 'danger', message: '人脸照片格式不正确'})
+                return false
+            }
+            const result = await putFile(
+                'apartment/user/face/',
+                reviseUserDto.value.name + '_' + personalPic.name, personalPic)
+            if (result.url !== undefined) {
+                reviseUserDto.value.faceUrl = result.url
+            }
+            return true
+        } catch (e) {
+            showNotify({type: 'danger', message: `人脸照片上传失败,请重试`})
+        } finally {
+            closeToast()
+        }
+        return false
     }
+    
+    const getUserBasic = async () => {
+        const data = await handleGetPersonalInfo()
+        if (data !== null && data.code === 2000) {
+            userStore.$patch((state) => {
+                state.currentUser = data.result
+            })
+        } else if (data !== null) {
+            showNotify({type: 'danger', message: `首页初始化失败,${data.msg},请刷新页面重试`});
+        } else {
+            showNotify({type: 'danger', message: `首页初始化失败,请刷新页面重试`});
+        }
+    }
+    
+    const onSubmit = async () => {
+        try {
+            if (!checkSmsDisabled.value) {
+                showNotify({
+                    type: 'danger',
+                    message: '请先验证手机号'
+                })
+            }
+            if (reviseUserDto.value.faceUrl !== oldFaceUrl) {
+                // 人脸数据发生变化 重新上传
+                showLoadingToast({
+                    duration: 0,
+                    forbidClick: true,
+                    message: '检测到人脸数据发生变化,正在上传'
+                })
+                const result = await uploadAvatar(fileList.value[0])
+                if (!result) {
+                    return
+                }
+                
+                closeToast()
+                showLoadingToast({
+                    duration: 0,
+                    forbidClick: true,
+                    message: '人脸数据上传成功,正在进行人证核验'
+                })
+                // 调用人证核身接口进行预校验
+                const faceRecognitionDto = {
+                    faceUrl: reviseUserDto.value.faceUrl,
+                    name: reviseUserDto.value.name,
+                    personalId: reviseUserDto.value.personalId
+                }
+                closeToast()
+                showLoadingToast({
+                    duration: 0,
+                    forbidClick: true,
+                    message: '人证核验成功,正在进行上传修改信息'
+                })
+                const resp = await axios.post('/api/auth/faceVerification', faceRecognitionDto)
+                if (!resp.data.code === 2000) {
+                    closeToast()
+                    showNotify({
+                        type: 'danger',
+                        message: `人证核验失败,${resp.data.msg},请重试`
+                    })
+                    return
+                }
+            }
+            
+            if (role.value.indexOf('isCadre') !== -1) {
+                reviseUserDto.value.isCadre = 1
+            }
+            
+            reviseUserDto.value.departmentId =
+                departmentSimpleList.value.find(
+                    item => item.name === reviseUserDto.value.departmentId
+                ).id
+            showLoadingToast({
+                duration: 0,
+                forbidClick: true,
+                message: '正在提交修改信息'
+            })
+            const {data} = await axios
+                .put(`/api/user/user/${currentUser.value.id}`,
+                    reviseUserDto.value)
+            if (data.code === 2000) {
+                showNotify({type: 'success', message: '成功修改您的个人信息'})
+                await getUserBasic()
+                await router.go(0)
+            } else {
+                showNotify({type: 'danger', message: data.message})
+            }
+        } catch (e) {
+            showNotify({type: 'danger', message: `服务器异常${e},请通知管理员`});
+        } finally {
+            closeToast();
+        }
+    }
+    
+    onMounted(async () => {
+        sex.value = currentUser.value.sex === 0 ? '男' : '女'
+        await getDepartmentSimpleList()
+        fileList.value.push({
+            url: currentUser.value.faceUrl,
+            isImage: true
+        })
+        if (currentUser.value.isCadre === 1) {
+            role.value.push('isCadre')
+        }
+        reviseUserDto.value.departmentId =
+            departmentSimpleList.value.find(
+                item => item.id === currentUser.value.departmentId
+            ).name
+        oldFaceUrl = currentUser.value.faceUrl
+    })
 </script>
 
 <template>
-    <div class="register-form">
+    <div class="revise-form">
         <van-nav-bar
-            title="注册"
+            title="修改个人信息"
             left-text="返回"
             left-arrow
             @click-left="router.go(-1)"
         />
-        <h3 class="title">员工公寓管理系统——注册</h3>
-        <van-form @submit="onSubmit()">
+        <van-form style="margin-top:5%;" @submit="onSubmit()">
             <van-cell-group inset style="padding: 1%;">
                 <van-uploader style="width: 60%; margin: 0 auto;"
                               :after-read="resolveIdCardFront">
@@ -437,7 +456,7 @@
                     </van-button>
                 </van-uploader>
                 <van-field
-                    v-model="registerDto.personalId"
+                    v-model="reviseUserDto.personalId"
                     center
                     disabled
                     clearable
@@ -445,7 +464,7 @@
                     placeholder="该位置会被自动填充"
                 />
                 <van-field
-                    v-model="registerDto.name"
+                    v-model="reviseUserDto.name"
                     center
                     disabled
                     clearable
@@ -476,7 +495,7 @@
                     </van-row>
                 </van-cell>
                 <van-field
-                    v-model="registerDto.username"
+                    v-model="reviseUserDto.username"
                     name="手机号"
                     label="手机号"
                     placeholder="请输入手机号"
@@ -519,16 +538,7 @@
                             size="small" style="width: 40%; margin: 1% auto" @click="confirmSms()">验证手机号码
                 </van-button>
                 <van-field
-                    v-model="registerDto.password"
-                    name="密码"
-                    label="密码"
-                    type="password"
-                    placeholder="请设置密码"
-                    autocomplete="off"
-                    :rules="[{ validator: validatorPassword, message: '应为4-16位数字/字母/下划线' }]"
-                />
-                <van-field
-                    v-model="registerDto.email"
+                    v-model="reviseUserDto.email"
                     center
                     clearable
                     label="邮箱"
@@ -569,7 +579,7 @@
                     验证邮箱
                 </van-button>
                 <van-field
-                    v-model="registerDto.departmentId"
+                    v-model="reviseUserDto.departmentId"
                     is-link
                     readonly
                     label="单位"
@@ -589,29 +599,25 @@
                 </van-checkbox-group>
             </van-cell-group>
             
-            <p>
-                <a>您确认注册则代表您认可我们的</a>
-                <a style="color: #5CA0FF" @click="router.push('/privacy')">隐私政策</a>
-            </p>
-            
             <div class="submit-login-btn">
                 <van-button plain block type="primary" native-type="submit">
-                    注册
+                    修改
                 </van-button>
             </div>
         </van-form>
     </div>
 </template>
 
-<style lang="less" scoped>
-    .register-form {
-        .personCard{
+<style scoped lang="less">
+    .revise-form {
+        .personCard {
             height: 10%;
             // 纵向居中
             display: flex;
             align-items: center;
             text-align: left;
-            .avatar-container{
+            
+            .avatar-container {
                 margin-left: 5px;
             }
         }

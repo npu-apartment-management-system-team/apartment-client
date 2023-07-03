@@ -5,9 +5,12 @@
     import { encrypt } from '@/utils/jsencrypt'
     import Cookies from 'js-cookie'
     import { closeToast, showDialog, showLoadingToast, showNotify } from 'vant'
-    import 'vant/es/notify/style'
-    import 'vant/es/toast/style'
     import { validatorCode, validatorPassword, validatorPhone } from '@/utils/validatorUtil'
+    import { useUserStore } from "@/store";
+    import { storeToRefs } from 'pinia'
+    
+    const userStore = useUserStore()
+    const {currentUser} = storeToRefs(userStore)
     
     const router = useRouter()
     
@@ -43,21 +46,19 @@
             Cookies.remove('token')
             const {data} = await axios.post('/api/auth/login/password', passwordLoginDto)
             if (data.code !== null && data.code === 2000) {
-                if (data.result.role === 1) {
+                if (data.result.role !== 8) {
                     showLoadingToast({
                         duration: 3000,
                         forbidClick: true,
-                        message: '该账号为管理员账号,3秒后跳转到管理端'
+                        message: '该账号为管理员账号,请使用管理端登录'
                     })
-                    setTimeout(() => {
-                        window.location.href =
-                            'https://apartment-admin.wangminan.me/#/preHandleLogin?token=' +
-                            data.result.token
-                    }, 3000)
                     return
                 }
                 Cookies.set('token', data.result.token)
-                await router.push('/main/home')
+                userStore.$patch((state) => {
+                    state.currentUser = data.result.user
+                })
+                await router.push('/main/my/my-home')
             } else {
                 showNotify({type: 'danger', message: '用户名密码登录未通过,请检查输入'});
             }
@@ -121,7 +122,10 @@
             const resp = await axios.post('/api/auth/login/phone', codeLoginDto)
             if (resp.data.code !== null && resp.data.code === 2000) {
                 Cookies.set('token', resp.data.result.token)
-                await router.push('/main/home')
+                userStore.$patch((state) => {
+                    state.currentUser = resp.data.result.user
+                })
+                await router.push('/main/my/my-home')
             } else {
                 showNotify({type: 'danger', message: '用户名短信登录未通过,请检查输入'});
             }
@@ -146,7 +150,7 @@
     
     onMounted(async () => {
         if (Cookies.get('token') !== undefined) {
-            await router.push('/main/home')
+            await router.push('/main')
         }
         const ua = navigator.userAgent.toLowerCase()
         const isChrome = ua.indexOf('chrome') !== -1

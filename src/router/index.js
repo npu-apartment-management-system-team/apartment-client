@@ -50,6 +50,119 @@ const routes = [
         }
     },
     {
+        path: '/main',
+        name: 'main-home',
+        component: () => import('../views/main/MainPage.vue'),
+        meta: {
+            title: '员工公寓管理系统-主页'
+        },
+        redirect: '/main/my/my-home',
+        children: [
+            {
+                path: '/main/application',
+                name: 'main-application',
+                component: () => import('../views/application/ApplicationHome.vue'),
+                meta: {
+                    title: '员工公寓管理系统-我的申请'
+                },
+                redirect: '/main/application/application-list',
+                children: [
+                    {
+                        path: 'application-list',
+                        name: 'main-application-list',
+                        component: () =>
+                            import('../views/application/ApplicationList.vue')
+                    },
+                    {
+                        path: 'application-detail',
+                        name: 'main-application-detail',
+                        component: () =>
+                            import('../views/application/ApplicationDetail.vue')
+                    }
+                ]
+            },
+            {
+                path: '/main/finance',
+                name: 'main-finance-main',
+                component: () =>
+                    import('../views/finance/FinanceHome.vue'),
+                meta: {
+                    title: '员工公寓管理系统-我的账单'
+                },
+                redirect: '/main/finance/finance-list',
+                children: [
+                    {
+                        path: 'finance-list',
+                        name: 'main-finance-list',
+                        component: () =>
+                            import('../views/finance/FinanceList.vue')
+                    },
+                    {
+                        path: 'finance-detail',
+                        name: 'main-finance-detail',
+                        component: () =>
+                            import('../views/finance/FinanceDetail.vue')
+                    }
+                ]
+            },
+            {
+                path: '/main/message',
+                name: 'main-driver-main',
+                component: () =>
+                    import('../views/message/MessageHome.vue'),
+                meta: {
+                    title: '员工公寓管理系统-我的消息'
+                },
+                redirect: '/main/message/message-list',
+                children: [
+                    {
+                        path: 'message-list',
+                        name: 'main-message-list',
+                        component: () =>
+                            import('../views/message/MessageList.vue')
+                    },
+                    {
+                        path: 'message-detail',
+                        name: 'main-message-detail',
+                        component: () =>
+                            import('../views/message/MessageDetail.vue')
+                    }
+                ]
+            },
+            {
+                path: "/main/my",
+                name: "main-my-main",
+                component: () => import('../views/my/MyMain.vue'),
+                meta: {
+                    title: '员工公寓管理系统-我的主页'
+                },
+                redirect: '/main/my/my-home',
+                children: [
+                    {
+                        path: 'my-home',
+                        name: 'main-my-home',
+                        component: () => import('../views/my/MyHome.vue')
+                    },
+                    {
+                        path: 'revise-info',
+                        name: 'main-revise-info',
+                        component: () => import('../views/my/ReviseInfo.vue')
+                    },
+                    {
+                        path: 'bind-alipay/success',
+                        name: 'main-handle-alipay',
+                        component: () => import('../views/my/BindAlipaySuccess.vue')
+                    },
+                    {
+                        path: 'bind-alipay/failure',
+                        name: 'main-handle-alipay-failure',
+                        component: () => import('../views/my/BindAlipayFailure.vue')
+                    }
+                ]
+            }
+        ]
+    },
+    /*{
         path: '/404',
         name: 'NotFound',
         component: () => import('../views/common/NotFound.vue'),
@@ -61,7 +174,7 @@ const routes = [
     {
         path: '/:catchAll(.*)',
         redirect: '/404'
-    }
+    }*/
 ]
 
 const router = createRouter({

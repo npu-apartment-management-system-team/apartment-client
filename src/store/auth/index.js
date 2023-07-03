@@ -1,6 +1,6 @@
 // auth部分使用的缓存
-import {defineStore} from 'pinia'
-import {ref} from 'vue'
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 export const useRegisterDtoStore =
     defineStore('registerDtoCache', () => {
