@@ -1,7 +1,6 @@
 <script setup>
     import { onMounted, ref } from 'vue'
     import { closeToast, showLoadingToast, showNotify } from 'vant'
-    // import axios from '@/api'
     import { useRouter } from 'vue-router'
     import { validatorCode, validatorPhone, validatorRegisterCode } from "@/utils/validatorUtil";
     import { useUserStore } from "@/store";
@@ -10,10 +9,6 @@
     import { putFile } from "@/utils/ossUtil";
     import axios from "@/api";
     import { handleGetPersonalInfo } from "@/api/common";
-    // import { base64ToFile, scanDrivingLicense, scanIdCard, scanVehicleLicense } from '@/utils/ocrUtil'
-    // import { useUserStore } from '@/store'
-    // import { deleteFile, putFile } from '@/utils/ossUtil'
-    // import { handleGetPersonalInfo } from "@/api/common";
     
     const router = useRouter()
     
@@ -601,7 +596,7 @@
             
             <div class="submit-login-btn">
                 <van-button plain block type="primary" native-type="submit">
-                    修改
+                    修改个人信息
                 </van-button>
             </div>
         </van-form>

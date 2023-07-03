@@ -1,6 +1,7 @@
 import axios from '../api/index'
 import OSS from 'ali-oss'
 import { revertFromUTF8 } from './utf8Util.js'
+import { closeToast, showLoadingToast } from 'vant'
 
 export const headers = {
     // 指定该Object被下载时的网页缓存行为。
@@ -34,9 +35,22 @@ export const createFileNameUUID = () => {
     return `${+new Date()}_${rx()}${rx()}`
 }
 
+const getStsToken = async () => {
+    showLoadingToast({
+        duration: 0,
+        forbidClick: true,
+        message: '正在获取文件上传凭证'
+    })
+    try {
+        return await axios.get(import.meta.env.VITE_OSS_STS_URL)
+    } finally {
+        closeToast()
+    }
+}
+
 // 注意 这样的语法(在模块顶层使用await without 一个 async) 不被低级浏览器支持 需要引入并配置插件
 // npm install vite-plugin-top-level-await
-const token = await axios.get(import.meta.env.VITE_OSS_STS_URL)
+const token = await getStsToken()
 
 const client = new OSS({
     endpoint: 'oss-cn-shanghai.aliyuncs.com', //填写Bucket所在地域

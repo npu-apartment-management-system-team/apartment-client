@@ -81,13 +81,15 @@
         <van-list>
             <van-cell :key="1" :title="'个人信息维护'"
                       @click="router.push('/main/my/revise-info')"/>
-            <van-cell :key="2" :title="'支付宝绑定与换绑'"
+            <van-cell :key="2" :title="'修改密码'"
+                      @click="router.push('/main/my/revise-password')"/>
+            <van-cell :key="3" :title="'支付宝绑定与换绑'"
                       @click="handleBindAlipay()"/>
         </van-list>
     </van-cell-group>
     <van-cell-group inset>
         <van-list>
-            <van-cell :key="3" :title="'退出登录'" @click="handleLogout"/>
+            <van-cell :key="4" :title="'退出登录'" @click="handleLogout"/>
         </van-list>
     </van-cell-group>
 </template>

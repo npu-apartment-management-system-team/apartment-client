@@ -8,9 +8,9 @@
     const router = useRouter()
 
     onMounted(async () => {
-        showFailToast('您似乎来到了不存在房间的荒原,三秒后跳转到上一页面')
+        showFailToast('您似乎来到了不存在房间的荒原,三秒后跳转到用户主页')
         setInterval(async () => {
-            await router.go(-1)
+            await router.push('/main/my/my-home')
         }, 3000)
     })
 </script>

@@ -1,8 +1,10 @@
 <script setup>
     import { onMounted, ref } from 'vue'
-    import { useNavStore } from '@/store'
+    import { useNavStore, useUserStore } from '@/store'
     import { storeToRefs } from 'pinia'
     import { useRouter } from 'vue-router'
+    import { handleGetPersonalInfo } from '@/api/common'
+    import { showNotify } from 'vant'
     
     const router = useRouter()
     const active = ref('carpooling')
@@ -10,7 +12,23 @@
     const navStore = useNavStore()
     const {nav} = storeToRefs(navStore)
     
-    const saveNavState = (navName, to) => {
+    const userStore = useUserStore()
+    const {currentUser} = storeToRefs(userStore)
+    
+    const getUserBasic = async () => {
+        const data = await handleGetPersonalInfo()
+        if (data !== null && data.code === 2000) {
+            userStore.$patch((state) => {
+                state.currentUser = data.result
+            })
+        } else if (data !== null) {
+            showNotify({type: 'danger', message: `首页初始化失败,${data.msg},请刷新页面重试`});
+        } else {
+            showNotify({type: 'danger', message: `首页初始化失败,请刷新页面重试`});
+        }
+    }
+    
+    const saveNavState = (navName,to) => {
         navStore.$patch((state) => {
             state.nav.currentNav = navName
             state.nav.to = to
@@ -20,6 +38,10 @@
     onMounted(async () => {
         // 从pinia读取当前active
         active.value = nav.value.currentNav
+        if (currentUser.value.isDeleted === 1) {
+            // 首次登入 pinia为空 加载用户信息
+            await getUserBasic()
+        }
         await router.push(nav.value.to)
     })
 </script>

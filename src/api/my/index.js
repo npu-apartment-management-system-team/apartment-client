@@ -1,5 +1,5 @@
 import axios from '../index.js'
-import { closeToast, showLoadingToast } from 'vant'
+import { closeToast, showLoadingToast, showNotify } from 'vant'
 
 const clearSession = () => {
     // window.sessionStorage.removeItem('carpoolingCache')
@@ -25,4 +25,17 @@ export const handleLogoutReq = async () => {
     } finally {
         closeToast()
     }
+}
+
+export const handleRevisePassword = async (revisePasswordDto) => {
+    beginLoading("正在修改密码")
+    try {
+        const {data} = await axios.put('/api/user/password', revisePasswordDto)
+        return data
+    } catch (e) {
+        showNotify({type: 'danger', message: `首页初始化失败,${e.message}`})
+    } finally {
+        closeToast()
+    }
+    return null
 }

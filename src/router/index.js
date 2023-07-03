@@ -149,6 +149,11 @@ const routes = [
                         component: () => import('../views/my/ReviseInfo.vue')
                     },
                     {
+                        path: 'revise-password',
+                        name: 'main-revise-password',
+                        component: () => import('../views/my/RevisePassword.vue')
+                    },
+                    {
                         path: 'bind-alipay/success',
                         name: 'main-handle-alipay',
                         component: () => import('../views/my/BindAlipaySuccess.vue')
@@ -162,7 +167,7 @@ const routes = [
             }
         ]
     },
-    /*{
+    {
         path: '/404',
         name: 'NotFound',
         component: () => import('../views/common/NotFound.vue'),
@@ -174,7 +179,7 @@ const routes = [
     {
         path: '/:catchAll(.*)',
         redirect: '/404'
-    }*/
+    }
 ]
 
 const router = createRouter({
