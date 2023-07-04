@@ -1,8 +1,8 @@
 <script setup>
     import { useRouter } from 'vue-router'
-    import { onMounted, ref } from "vue";
-    import { handleGetSpecificApplication, handleWithdrawApplication } from "@/api/application";
-    import { showConfirmDialog, showNotify } from "vant";
+    import { onMounted, ref } from 'vue'
+    import { handleGetSpecificApplication, handleWithdrawApplication } from '@/api/application'
+    import { showConfirmDialog, showNotify } from 'vant'
     
     const router = useRouter()
     
@@ -68,10 +68,10 @@
                 })
             }
         } catch (e) {
-           showNotify({
-               type: 'danger',
-               message: '获取申请失败：未知错误'
-           })
+            showNotify({
+                type: 'danger',
+                message: '获取申请失败：未知错误'
+            })
         }
     }
     
@@ -192,7 +192,7 @@
 </template>
 
 <style scoped lang="less">
-    .application-detail-form{
+    .application-detail-form {
         width: 100%;
         height: 100%;
         text-align: center;

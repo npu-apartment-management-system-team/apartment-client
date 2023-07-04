@@ -62,3 +62,19 @@ export const handleWithdrawApplication = async (id) => {
     }
     return null
 }
+
+export const handleSubmitApplication = async (applicationDto) => {
+    beginLoading('提交申请中')
+    try {
+        const {data} = await axios.post('/api/application/apply', applicationDto)
+        return data
+    } catch (e) {
+        showNotify({
+            type: 'danger',
+            message: '提交申请失败'
+        })
+    } finally {
+        closeToast()
+    }
+    return null
+}

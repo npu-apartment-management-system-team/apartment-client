@@ -34,6 +34,11 @@ const routes = [
         }
     },
     {
+        path: '/preview-map',
+        name: 'preview-map',
+        component: () => import('../views/common/PreviewMap.vue')
+    },
+    {
         path: '/oauth/alipay/success',
         name: 'oauth-success',
         component: () => import('../views/auth/OAuthSuccess.vue'),
@@ -148,6 +153,11 @@ const routes = [
                         path: 'my-home',
                         name: 'main-my-home',
                         component: () => import('../views/my/MyHome.vue')
+                    },
+                    {
+                        path: 'my-dormitory',
+                        name: 'main-my-dormitory',
+                        component: () => import('../views/my/MyDormitory.vue')
                     },
                     {
                         path: 'revise-info',

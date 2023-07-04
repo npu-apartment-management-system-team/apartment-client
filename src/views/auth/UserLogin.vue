@@ -6,7 +6,7 @@
     import Cookies from 'js-cookie'
     import { closeToast, showDialog, showLoadingToast, showNotify } from 'vant'
     import { validatorCode, validatorPassword, validatorPhone } from '@/utils/validatorUtil'
-    import { useUserStore } from "@/store";
+    import { useUserStore } from '@/store'
     
     const userStore = useUserStore()
     

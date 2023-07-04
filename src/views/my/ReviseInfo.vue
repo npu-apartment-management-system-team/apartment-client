@@ -3,12 +3,12 @@
     import { closeToast, showLoadingToast, showNotify } from 'vant'
     import { useRouter } from 'vue-router'
     import { validatorCode, validatorPhone, validatorRegisterCode } from "@/utils/validatorUtil";
-    import { useUserStore } from "@/store";
-    import { storeToRefs } from "pinia";
-    import { base64ToFile, scanIdCard } from "@/utils/ocrUtil";
-    import { putFile } from "@/utils/ossUtil";
-    import axios from "@/api";
-    import { handleGetPersonalInfo } from "@/api/common";
+    import { useUserStore } from '@/store'
+    import { storeToRefs } from 'pinia'
+    import { base64ToFile, scanIdCard } from '@/utils/ocrUtil'
+    import { putFile } from '@/utils/ossUtil'
+    import axios from '@/api'
+    import { handleGetPersonalInfo } from '@/api/common'
     
     const router = useRouter()
     

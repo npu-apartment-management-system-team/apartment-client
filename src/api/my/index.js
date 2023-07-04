@@ -39,3 +39,16 @@ export const handleRevisePassword = async (revisePasswordDto) => {
     }
     return null
 }
+
+export const handleGetBasicData = async () => {
+    beginLoading('正在获取您的信息')
+    try {
+        const {data} = await axios.get('/api/management/user/living/message')
+        return data
+    } catch (e) {
+        showNotify({type: 'danger', message: `详情初始化失败,${e.message}`})
+    } finally {
+        closeToast()
+    }
+    return null
+}

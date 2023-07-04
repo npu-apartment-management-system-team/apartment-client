@@ -221,6 +221,12 @@
                 registerDto.value.name + '_' + personalPic.name, personalPic)
             if (result.url !== undefined){
                 registerDto.value.faceUrl = result.url
+            } else {
+                showNotify({
+                    type: 'danger',
+                    message: '人脸照片上传失败,请重试'
+                })
+                return false
             }
             return true
         } catch (e) {
