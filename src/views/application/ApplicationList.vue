@@ -98,7 +98,11 @@
 <template>
     <!-- 搜索条 -->
     <div class="apply-btn-container">
-        <van-button type="primary" plain block>新增申请</van-button>
+        <van-button type="primary" plain block
+                    @click="router.push('/main/application/create-application')"
+        >
+            新增申请
+        </van-button>
     </div>
     <!-- 内容部分 始终位于搜索条下方-->
     <div class="application-card-container">
