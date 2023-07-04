@@ -1,1 +1,0 @@
-import{n as t}from"./vant-70475d99.js";import{u as a}from"./vue-router-05758286.js";import{c as e,R as r,V as s}from"./@vue-802b571a.js";import"./@vant-176bc72f.js";const l={__name:"NotFound",setup(n){const o=a();return e(async()=>{t("您似乎来到了不存在房间的荒原,三秒后跳转到用户主页"),setInterval(async()=>{await o.push("/main/my/my-home")},3e3)}),(m,c)=>(r(),s("div"))}};export{l as default};
