@@ -7,10 +7,8 @@
     import { closeToast, showDialog, showLoadingToast, showNotify } from 'vant'
     import { validatorCode, validatorPassword, validatorPhone } from '@/utils/validatorUtil'
     import { useUserStore } from "@/store";
-    import { storeToRefs } from 'pinia'
     
     const userStore = useUserStore()
-    const {currentUser} = storeToRefs(userStore)
     
     const router = useRouter()
     
@@ -260,7 +258,7 @@
                     </van-field>
                 </van-cell-group>
                 
-                <div class="submit-login-btn">
+                <div class="submit-revise-btn">
                     <van-button plain block type="primary" native-type="submit">
                         登录
                     </van-button>
@@ -336,7 +334,7 @@
                 border-radius: 10px;
             }
             
-            .submit-login-btn {
+            .submit-revise-btn {
                 margin-top: 5%;
                 display: flex;
                 justify-content: space-around;

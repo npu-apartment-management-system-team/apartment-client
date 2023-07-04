@@ -78,6 +78,12 @@ const routes = [
                         name: 'main-application-detail',
                         component: () =>
                             import('../views/application/ApplicationDetail.vue')
+                    },
+                    {
+                        path: 'create-application',
+                        name: 'main-create-application',
+                        component: () =>
+                            import('../views/application/CreateApplication.vue')
                     }
                 ]
             },

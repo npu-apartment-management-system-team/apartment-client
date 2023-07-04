@@ -594,7 +594,7 @@
                 </van-checkbox-group>
             </van-cell-group>
             
-            <div class="submit-login-btn">
+            <div class="submit-revise-btn">
                 <van-button plain block type="primary" native-type="submit">
                     修改个人信息
                 </van-button>
@@ -631,7 +631,7 @@
             margin-top: 5%;
         }
         
-        .submit-login-btn {
+        .submit-revise-btn {
             display: flex;
             justify-content: space-around;
             margin: 5% auto 5%;

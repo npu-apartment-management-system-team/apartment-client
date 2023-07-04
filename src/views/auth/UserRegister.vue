@@ -594,7 +594,7 @@
                 <a style="color: #5CA0FF" @click="router.push('/privacy')">隐私政策</a>
             </p>
             
-            <div class="submit-login-btn">
+            <div class="submit-revise-btn">
                 <van-button plain block type="primary" native-type="submit">
                     注册
                 </van-button>
@@ -630,7 +630,7 @@
             margin-top: 5%;
         }
         
-        .submit-login-btn {
+        .submit-revise-btn {
             display: flex;
             justify-content: space-around;
             margin: 5% auto 5%;

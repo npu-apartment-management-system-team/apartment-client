@@ -91,7 +91,7 @@
                 />
             </van-cell-group>
             
-            <div class="submit-login-btn">
+            <div class="submit-revise-btn">
                 <van-button plain block type="primary" native-type="submit">
                     修改密码
                 </van-button>
@@ -106,7 +106,7 @@
         height: 100%;
         text-align: center;
         
-        .submit-login-btn {
+        .submit-revise-btn {
             display: flex;
             justify-content: space-around;
             margin: 5% auto 5%;
