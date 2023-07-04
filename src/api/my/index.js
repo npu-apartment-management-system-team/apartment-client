@@ -52,3 +52,16 @@ export const handleGetBasicData = async () => {
     }
     return null
 }
+
+export const handleDeleteUser = async (id) => {
+    beginLoading('正在删除您的账户')
+    try {
+        const {data} = await axios.delete(`/api/user/user/${id}`)
+        return data
+    } catch (e) {
+        showNotify({type: 'danger', message: `详情初始化失败,${e.message}`})
+    } finally {
+        closeToast()
+    }
+    return null
+}

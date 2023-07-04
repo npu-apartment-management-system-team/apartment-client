@@ -42,6 +42,23 @@
     
     const onConfirm = async ({selectedValues}) => {
         showPicker.value = false
+        if (currentUser.value.bedId !== "") {
+            if (selectedValues[0] === 0) {
+                showNotify({
+                    type: 'danger',
+                    message: '您已经有床位了,请勿重复申请'
+                })
+                return
+            }
+        } else {
+            if (selectedValues[0] !== 0) {
+                showNotify({
+                    type: 'danger',
+                    message: '您需要先申请一个床位'
+                })
+                return
+            }
+        }
         applicationDto.value.type = selectedValues[0]
         applicationVo.value.type = applicationList[selectedValues[0]].text
     }

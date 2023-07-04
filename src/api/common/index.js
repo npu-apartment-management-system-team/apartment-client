@@ -1,7 +1,5 @@
 import axios from '../index.js'
 import { closeToast, showLoadingToast, showNotify } from 'vant'
-import 'vant/es/notify/style'
-import 'vant/es/toast/style'
 
 const beginLoading = (message) => {
     showLoadingToast({

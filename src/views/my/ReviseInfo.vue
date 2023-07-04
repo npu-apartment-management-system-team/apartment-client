@@ -1,6 +1,6 @@
 <script setup>
     import { onMounted, ref } from 'vue'
-    import { closeToast, showLoadingToast, showNotify } from 'vant'
+    import { closeToast, showConfirmDialog, showLoadingToast, showNotify } from 'vant'
     import { useRouter } from 'vue-router'
     import { validatorCode, validatorPhone, validatorRegisterCode } from "@/utils/validatorUtil";
     import { useUserStore } from '@/store'
@@ -9,6 +9,7 @@
     import { putFile } from '@/utils/ossUtil'
     import axios from '@/api'
     import { handleGetPersonalInfo } from '@/api/common'
+    import { handleDeleteUser } from "@/api/my";
     
     const router = useRouter()
     
@@ -416,6 +417,47 @@
         }
     }
     
+    // 注销账号
+    const deleteUser = async () => {
+        if (currentUser.value.bedId !== null) {
+            showNotify({
+                type: 'danger',
+                message: '请先完成退宿操作'
+            })
+            return
+        }
+        showConfirmDialog({
+            title: '提示',
+            message: `该操作将删除您的账号,请您确认未住宿并结清所有费用。`,
+            confirmButtonText: '继续删除',
+            cancelButtonText: '取消',
+            confirmButtonColor: '#f00',
+            showCancelButton: true
+        }).then(async () => {
+            // 开始执行操作
+            try {
+                const data = await handleDeleteUser(currentUser.value.id)
+                if (data !== null && data.code === 2000) {
+                    showNotify({type: 'success', message: '成功注销账号'})
+                    await router.push('/login')
+                } else if (data !== null) {
+                    showNotify({type: 'danger', message: `注销账号失败,${data.msg},请刷新页面重试`});
+                } else {
+                    showNotify({type: 'danger', message: `注销账号失败,请刷新页面重试`});
+                }
+            } catch (e) {
+                showNotify({type: 'danger', message: `服务器异常${e},请通知管理员`});
+            } finally {
+                closeToast();
+            }
+        }).catch(() => {
+            showNotify({
+                type: 'primary',
+                message: '已取消账户删除操作'
+            })
+        })
+    }
+    
     onMounted(async () => {
         sex.value = currentUser.value.sex === 0 ? '男' : '女'
         await getDepartmentSimpleList()
@@ -597,6 +639,9 @@
             <div class="submit-revise-btn">
                 <van-button plain block type="primary" native-type="submit">
                     修改个人信息
+                </van-button>
+                <van-button plain block type="danger" @click="deleteUser">
+                    删除个人账号
                 </van-button>
             </div>
         </van-form>

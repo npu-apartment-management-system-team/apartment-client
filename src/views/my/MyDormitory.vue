@@ -61,26 +61,44 @@
         await getBasicData()
     })
     
+    let drawType = 'route'
+    
     const getToNav = async () => {
+        drawType = 'route'
         await router.push({
             name: 'preview-map',
             query: {
                 departureLng: basicData.value.apartment.positionLongitude,
                 departureLat: basicData.value.apartment.positionLatitude,
                 arriveLng: basicData.value.department.positionLongitude,
-                arriveLat: basicData.value.department.positionLatitude
+                arriveLat: basicData.value.department.positionLatitude,
+                queryType: drawType
             }
         })
     }
     
     const getBackNav = async () => {
+        drawType = 'route'
         await router.push({
             name: 'preview-map',
             query: {
                 departureLng: basicData.value.department.positionLongitude,
                 departureLat: basicData.value.department.positionLatitude,
                 arriveLng: basicData.value.apartment.positionLongitude,
-                arriveLat: basicData.value.apartment.positionLatitude
+                arriveLat: basicData.value.apartment.positionLatitude,
+                queryType: drawType
+            }
+        })
+    }
+    
+    const goToApartmentPos = async () => {
+        drawType = 'line'
+        await router.push({
+            name: 'preview-map',
+            query: {
+                departureLng: basicData.value.apartment.positionLongitude,
+                departureLat: basicData.value.apartment.positionLatitude,
+                queryType: drawType
             }
         })
     }
@@ -99,7 +117,7 @@
                 <van-cell>
                     我的公寓
                 </van-cell>
-                <van-cell>
+                <van-cell is-link @click="goToApartmentPos">
                     <van-row>
                         公寓名称: {{basicData.apartment.name}}
                     </van-row>

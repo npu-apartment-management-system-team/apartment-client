@@ -19,7 +19,7 @@ export const getGeoPoint = async (address) => {
     const parameters = {
         key: data.WebApiKey,
         address: address,
-        city: '西安'
+        city: '杭州'
     }
     // 使用axios因为有baseUrl所以会有跨域问题 改用fetch
     const resp = await fetch(

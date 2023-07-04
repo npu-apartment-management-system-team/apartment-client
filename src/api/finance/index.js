@@ -1,5 +1,6 @@
 import axios from '../index.js'
-import {closeToast, showLoadingToast, showNotify} from 'vant'
+import { closeToast, showLoadingToast, showNotify } from 'vant'
+
 const beginLoading = (message) => {
     showLoadingToast({
         duration: 0,
@@ -7,11 +8,12 @@ const beginLoading = (message) => {
         message: message
     })
 }
-export const handleGetMessageList = async (queryDto)=>{
-    beginLoading('正在加载消息列表')
+
+export const handleGetFinanceList = async (queryDto) => {
+    beginLoading('开始加载缴费信息列表')
     try {
         const {data} = await axios.get(
-            '/api/message/sender/outbox',
+            '/api/finance/user/pay/list',
             {
                 params: queryDto
             }
@@ -20,7 +22,7 @@ export const handleGetMessageList = async (queryDto)=>{
     } catch (e) {
         showNotify({
             type: 'danger',
-            message: '加载消息列表失败'
+            message: '获取缴费信息列表失败'
         })
     } finally {
         closeToast()
