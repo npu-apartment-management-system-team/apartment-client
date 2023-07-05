@@ -49,7 +49,7 @@ export const handleStartPayment = async (orderId) => {
 export const handlePutPaymentStatus = async (orderId) => {
     beginLoading('正在更新支付状态')
     try {
-        const {data} = await axios.put(`/api/finance/pay/${orderId}`)
+        const {data} = await axios.put(`/api/finance/user/pay/${orderId}`)
         return data
     } catch (e) {
         showNotify({

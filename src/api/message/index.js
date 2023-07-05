@@ -1,5 +1,6 @@
 import axios from '../index.js'
-import {closeToast, showLoadingToast, showNotify} from 'vant'
+import { closeToast, showLoadingToast, showNotify } from 'vant'
+
 const beginLoading = (message) => {
     showLoadingToast({
         duration: 0,
