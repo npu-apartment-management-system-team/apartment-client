@@ -63,6 +63,9 @@
         try {
             if (queryDto.value !== oldQueryDto) {
                 queryDto.value.pageNum = 1
+                // 清空当前list
+                financeList.value = []
+                
                 // 强弱拷贝
                 oldQueryDto.pageNum = queryDto.value.pageNum
                 oldQueryDto.pageSize = queryDto.value.pageSize
@@ -234,7 +237,7 @@
         <van-list
             v-model:loading="loading"
             :finished="finished"
-            finished-text="没有更多行程了"
+            finished-text="没有更多订单了"
             @load="getFinanceList"
         >
             <van-cell-group inset style="margin-top:2%"
@@ -251,12 +254,10 @@
                         </van-col>
                     </van-row>
                     <van-row>
-                        <van-col :span="12">
-                            订单状态:{{payStatusColumns[finance.status].text}}
-                        </van-col>
-                        <van-col :span="12">
-                            订单类别:{{typeColumns[finance.type].text}}
-                        </van-col>
+                        订单状态:{{payStatusColumns[finance.status].text}}
+                    </van-row>
+                    <van-row>
+                        订单类别:{{typeColumns[finance.type].text}}
                     </van-row>
                     <van-row>
                         发起时间:{{finance.createTime}}
