@@ -113,6 +113,18 @@ const routes = [
                         name: 'main-finance-detail',
                         component: () =>
                             import('../views/finance/FinanceDetail.vue')
+                    },
+                    {
+                        path: 'pay/success',
+                        name: 'main-pay-success',
+                        component: () =>
+                            import('../views/finance/PaySuccess.vue')
+                    },
+                    {
+                        path: 'pay/failure',
+                        name: 'main-pay-failure',
+                        component: () =>
+                            import('../views/finance/PayFailure.vue')
                     }
                 ]
             },
