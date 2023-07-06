@@ -126,7 +126,7 @@
                         message: '申请提交成功'
                     })
                     await router.push('/main/application/application-list')
-                } if (data !== null) {
+                } else if (data !== null) {
                     showNotify({
                         type: 'danger',
                         message: `申请提交失败,${data.msg}`
